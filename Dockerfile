@@ -8,5 +8,16 @@ COPY torchserve/config.properties /torchserve/config.properties
 COPY torchserve/torchserve-entrypoint.sh /torchserve/torchserve-entrypoint.sh
 ENTRYPOINT ["/torchserve/torchserve-entrypoint.sh"]
 
-# docker run --rm --gpus all -v /scratch/model_store/:/model_store --net host --name ts-yolov7 -t ts-yolov7 --models yolov7=yolov7.mar,mike=mike.mar
-# wget -q -O- --method=PUT --header='Content-Type: image/jpg' --body-file a321.jpg  http://localhost:8080/predictions/mike
+## create MAR archive
+
+# $ pip install torch-model-archiver
+# $ torch-model-archiver --model-name mike --serialized-file localizer.pt --handler torchserve/custom_handler.py --export-path //model_store/ -v 1 -f
+
+## build and run docker container (assumes nvidia container toolkit etc is installed)
+
+# $ docker build -f Dockerfile . -t ts-yolov7
+# $ docker run --rm --gpus all -d -v /scratch/model_store/:/model_store --net host --name ts-yolov7 -t ts-yolov7 --models mike=mike.mar
+
+## poke an image in for a prediction
+
+# $ wget -q -O- --method=PUT --header='Content-Type: image/jpg' --body-file a321.jpg  http://localhost:8080/predictions/mike
